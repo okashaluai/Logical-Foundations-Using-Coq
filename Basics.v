@@ -1265,7 +1265,11 @@ Qed.
 Theorem andb_true_elim2 : forall b c : bool,
   andb b c = true -> c = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c.
+  destruct b.
+  - simpl. intros H. rewrite H. reflexivity.
+  - simpl. intros H. discriminate.
+Qed.
 (** [] *)
 
 (** Before closing the chapter, let's mention one final
@@ -1407,8 +1411,13 @@ Theorem identity_fn_applied_twice :
   (forall (x : bool), f x = x) ->
   forall (b : bool), f (f b) = b.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  intros f.
+  intros id.
+  intros b.
+  rewrite id.
+  rewrite id.
+  reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (negation_fn_applied_twice) 
@@ -1437,7 +1446,11 @@ Theorem andb_eq_orb :
   (andb b c = orb b c) ->
   b = c.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c.
+  destruct b.
+  -simpl. intros H. rewrite H. reflexivity.
+  -simpl. intros H. exact H.
+Qed.
 
 (** [] *)
 
