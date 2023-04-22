@@ -1,6 +1,8 @@
 (** * Lists: Working with Structured Data *)
 
 From LF Require Export Induction.
+
+
 Module NatList.
 
 (* ################################################################# *)
@@ -289,34 +291,65 @@ Proof. reflexivity. Qed.
     [countoddmembers] below. Have a look at the tests to understand
     what these functions should do. *)
 
-Fixpoint nonzeros (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint nonzeros (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | 0::tail => (nonzeros tail) 
+  | head::tail => (cons head (nonzeros tail))
+  end.
 
 Example test_nonzeros:
   nonzeros [0;1;0;2;3;0;0] = [1;2;3].
-  (* FILL IN HERE *) Admitted.
-
-Fixpoint oddmembers (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
+  
+Fixpoint oddmembers (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | head::tail => match (oddb head) with
+                  | true => head::(oddmembers tail)
+                  | false => (oddmembers tail)
+                  end
+  end.
 
 Example test_oddmembers:
   oddmembers [0;1;0;2;3;0;0] = [1;3].
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
-Definition countoddmembers (l:natlist) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint countoddmembers (l:natlist) : nat :=
+  match l with
+  | nil => 0
+  | head::tail => match (oddb head) with
+                  | true => (S (countoddmembers tail))
+                  | false => (countoddmembers tail)
+                  end
+  end.
 
 Example test_countoddmembers1:
   countoddmembers [1;0;3;1;4;5] = 4.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
 Example test_countoddmembers2:
   countoddmembers [0;2;4] = 0.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
 Example test_countoddmembers3:
   countoddmembers nil = 0.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced, optional (alternate) 
@@ -367,15 +400,27 @@ Definition bag := natlist.
     Complete the following definitions for the functions
     [count], [sum], [add], and [member] for bags. *)
 
-Fixpoint count (v : nat) (s : bag) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint count (v : nat) (s : bag) : nat :=
+  match s with 
+  | nil => 0
+  | head::tail => match (eqb head v) with 
+                  | true => (S (count v tail))
+                  | false => (count v tail)
+                  end
+  end.
 
 (** All these proofs can be done just by [reflexivity]. *)
 
 Example test_count1:              count 1 [1;2;3;1;4;1] = 3.
- (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 Example test_count2:              count 6 [1;2;3;1;4;1] = 0.
- (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
 (** Multiset [sum] is similar to set [union]: [sum a b] contains all
     the elements of [a] and of [b].  (Mathematicians usually define
@@ -389,28 +434,56 @@ Example test_count2:              count 6 [1;2;3;1;4;1] = 0.
     whether [sum] can be implemented in another way -- perhaps by
     using one or more functions that have already been defined.  *)
 
-Definition sum : bag -> bag -> bag
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint sum (s1 s2: bag) : bag :=
+  match s1 with 
+  | nil => s2
+  | head::tail => head::(sum tail s2)
+  end.
+
 
 Example test_sum1:              count 1 (sum [1;2;3] [1;4;1]) = 3.
- (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
-Definition add (v : nat) (s : bag) : bag
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint add (v : nat) (s : bag) : bag :=
+  match s with 
+  | nil => v::nil
+  | head::tail => head::(add (v) (tail))
+  end.
 
 Example test_add1:                count 1 (add 1 [1;4;1]) = 3.
- (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 Example test_add2:                count 5 (add 1 [1;4;1]) = 0.
- (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
-Definition member (v : nat) (s : bag) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint member (v : nat) (s : bag) : bool :=
+  match s with 
+  | nil => false
+  | head::tail => match (eqb head v) with 
+                  | true => true
+                  | false => (member v tail)
+                  end
+  end.
 
 Example test_member1:             member 1 [1;4;1] = true.
- (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 
 Example test_member2:             member 2 [1;4;1] = false.
-(* FILL IN HERE *) Admitted.
+  Proof.
+  simpl.
+  reflexivity.
+  Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (bag_more_functions) 
@@ -814,18 +887,27 @@ Search (?x + ?y = ?y + ?x).
 Theorem app_nil_r : forall l : natlist,
   l ++ [] = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  induction l as [|head tail].
+  - simpl. reflexivity.
+  - simpl. rewrite IHtail. reflexivity.
+Qed.
 Theorem rev_app_distr: forall l1 l2 : natlist,
   rev (l1 ++ l2) = rev l2 ++ rev l1.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l1 l2.
+  induction l1 as [|head tail].
+  - simpl. rewrite app_nil_r. reflexivity.
+  - simpl. rewrite IHtail. rewrite app_assoc. reflexivity.
+Qed.
 
 Theorem rev_involutive : forall l : natlist,
   rev (rev l) = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  intros l.
+  induction l as [| head tail].
+  - simpl. reflexivity. 
+  - simpl. rewrite <- IHtail. rewrite rev_app_distr. simpl. rewrite IHtail. rewrite IHtail. reflexivity.
+Qed.
 (** There is a short solution to the next one.  If you find yourself
     getting tangled up, step back and try to look for a simpler
     way. *)
@@ -833,14 +915,24 @@ Proof.
 Theorem app_assoc4 : forall l1 l2 l3 l4 : natlist,
   l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l1 l2 l3 l4.
+  rewrite app_assoc.
+  rewrite app_assoc.
+  reflexivity.
+Qed.
 
 (** An exercise about your implementation of [nonzeros]: *)
 
 Lemma nonzeros_app : forall l1 l2 : natlist,
   nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l1 l2.
+  induction l1 as [| head tail].
+  - simpl. reflexivity. 
+  - simpl. destruct head.
+    -- simpl. rewrite IHtail. reflexivity.
+    -- simpl. rewrite IHtail. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (eqblist) 
@@ -1135,7 +1227,7 @@ Inductive baz : Type :=
 (** How _many_ elements does the type [baz] have? (Explain in words,
     in a comment.) *)
 
-(* FILL IN HERE *)
+(** The type [baz] has infinite number of element since in its  inductive definition it has sub type which is the same time of its type.*)
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_baz_num_elts : option (nat*string) := None.
