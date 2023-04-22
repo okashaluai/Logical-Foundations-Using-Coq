@@ -7,6 +7,9 @@
     all of our definitions from the previous chapter: *)
 
 From LF Require Export Basics.
+Require Import Nat.
+
+
 
 (** For this [Require Export] command to work, Coq needs to be
     able to find a compiled version of [Basics.v], called [Basics.vo],
@@ -204,22 +207,46 @@ Proof.
 Theorem mult_0_r : forall n:nat,
   n * 0 = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros n. induction n as [| n' IHn'].
+- simpl. reflexivity.
+- simpl. rewrite IHn'. reflexivity.
+Qed.
+
+Theorem plus_0_r : forall n:nat,
+  n + 0 = n.
+Proof.
+  intros n.
+  induction n as [|n' IHn'].
+  - reflexivity.
+  - simpl. rewrite IHn'. reflexivity.
+Qed.
 
 Theorem plus_n_Sm : forall n m : nat,
   S (n + m) = n + (S m).
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros n m.
+induction n as [|n' IHn'].
+-simpl. reflexivity.
+-simpl. rewrite IHn'. reflexivity.
+Qed.
 
 Theorem plus_comm : forall n m : nat,
   n + m = m + n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m.
+  induction n as [| n' IHn'].
+  - simpl. rewrite plus_0_r. reflexivity.
+  - simpl. rewrite IHn'. rewrite plus_n_Sm. reflexivity.
+Qed.
 
 Theorem plus_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+  induction n as [|n' IHn'].
+  - simpl. reflexivity.
+  - simpl. rewrite IHn'. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (double_plus) 
@@ -251,7 +278,15 @@ Proof.
 Theorem evenb_S : forall n : nat,
   evenb (S n) = negb (evenb n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n.
+  induction n as [|n' IHn'].
+  - simpl. reflexivity.
+  - simpl in IHn'. 
+    simpl. 
+    rewrite IHn'. 
+    rewrite negb_involutive.
+    reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (destruct_induction) 
@@ -487,16 +522,45 @@ Definition manual_grade_for_plus_comm_informal : option (nat*string) := None.
 Theorem plus_swap : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+
+  assert (H2: p + n = n + p). 
+  {
+  destruct p. 
+    - rewrite plus_0_r. reflexivity. 
+    - rewrite plus_comm. reflexivity. 
+  }
+
+  rewrite plus_comm. 
+  rewrite <- H2.
+  rewrite plus_assoc'.
+  reflexivity.
+
+Qed.
 
 (** Now prove commutativity of multiplication.  You will probably
     want to define and prove a "helper" theorem to be used
     in the proof of this one. Hint: what is [n * (1 + k)]? *)
 
+Theorem common_factor: forall n k: nat, 
+  n + (n * k) = n * (1 + k).
+Proof.
+  intros n k.
+  induction n as [|n' IHn'].
+    - simpl. reflexivity.
+    - simpl. rewrite plus_swap. rewrite IHn'. 
+      simpl. reflexivity.
+Qed.
 Theorem mult_comm : forall m n : nat,
   m * n = n * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m.
+  induction n as [|n' IHn'].
+    - simpl. rewrite mult_0_r. reflexivity.
+    - simpl. rewrite IHn'. rewrite <- plus_1_l. 
+      rewrite common_factor. reflexivity.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (more_exercises) 
@@ -512,12 +576,12 @@ Proof.
 Check leb.
 
 Theorem leb_refl : forall n:nat,
-  true = (n <=? n).
+  Datatypes.true = (n <=? n).
 Proof.
   (* FILL IN HERE *) Admitted.
 
 Theorem zero_nbeq_S : forall n:nat,
-  0 =? (S n) = false.
+  0 =? (S n) = Datatypes.false.
 Proof.
   (* FILL IN HERE *) Admitted.
 
@@ -527,12 +591,12 @@ Proof.
   (* FILL IN HERE *) Admitted.
 
 Theorem plus_ble_compat_l : forall n m p : nat,
-  n <=? m = true -> (p + n) <=? (p + m) = true.
+  n <=? m = Datatypes.true -> (p + n) <=? (p + m) = Datatypes.true.
 Proof.
   (* FILL IN HERE *) Admitted.
 
 Theorem S_nbeq_0 : forall n:nat,
-  (S n) =? 0 = false.
+  (S n) =? 0 = Datatypes.false.
 Proof.
   (* FILL IN HERE *) Admitted.
 
@@ -563,9 +627,14 @@ Proof.
 (** **** Exercise: 2 stars, standard (eqb_refl)  *)
 
 Theorem eqb_refl : forall n : nat,
-  true = (n =? n).
+  Datatypes.true = (n =? n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n.
+  induction n as [|n' IHn'].
+    - simpl. reflexivity.
+    - simpl. rewrite IHn'. reflexivity.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (plus_swap') 
@@ -579,10 +648,21 @@ Proof.
    Use the [replace] tactic to do a proof of [plus_swap'], just like
    [plus_swap] but without needing [assert]. *)
 
+  
 Theorem plus_swap' : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+
+  rewrite plus_comm. 
+  rewrite <- plus_assoc'. 
+  replace (p + n) with (n + p).
+  
+  reflexivity. 
+  destruct n.
+    - simpl. rewrite plus_0_r. reflexivity.
+    - simpl. rewrite plus_comm. apply plus_n_Sm.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (binary_commute) 
